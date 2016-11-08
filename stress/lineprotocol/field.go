@@ -9,18 +9,26 @@ import (
 var equalSign = byte('=')
 var comma = byte(',')
 
+// Field is an aliased io.WriterTo
 type Field io.WriterTo
 
+// Verify that *Int and *Float implement Field
 var (
 	_ Field = &Int{}
 	_ Field = &Float{}
 )
 
+// Int implements the Field interface. Key is the line protocol
+// field key as a byte slice. Value is the integer key value for
+// the field.
 type Int struct {
 	Key   []byte
 	Value int64
 }
 
+// WriteTo writes the field key value pair to an io.Writer
+// For example if i.Key = []byte("value") and i.Value = 1
+// then `value=1i` is written.
 func (i *Int) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(i.Key)
 	if err != nil {
@@ -39,11 +47,17 @@ func (i *Int) WriteTo(w io.Writer) (int64, error) {
 	return int64(n + m), err
 }
 
+// Float implements the Field interface. Key is the line protocol
+// field key as a byte slice. Value is the float key value for
+// the field.
 type Float struct {
 	Key   []byte
 	Value float64
 }
 
+// WriteTo writes the field key value pair to an io.Writer
+// For example if i.Key = []byte("value") and i.Value = 1
+// then `value=1` is written.
 func (f *Float) WriteTo(w io.Writer) (int64, error) {
 	n, err := w.Write(f.Key)
 	if err != nil {
